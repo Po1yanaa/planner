@@ -1,7 +1,7 @@
 {
-  "name": "Планер",
-  "short_name": "Планер",
-  "lang": "ru",
+  "name": "Planner",
+  "short_name": "Planner",
+  "lang": "en",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

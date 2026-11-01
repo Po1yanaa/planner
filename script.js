@@ -5,12 +5,98 @@
 //                           skips: [даты, где удалено], done: [даты, где сделано], created }
 const STORE_KEY = 'planner:v2';
 
-const DAYS = ['понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота', 'воскресенье'];
-const DAYS_IN = ['в понедельник', 'во вторник', 'в среду', 'в четверг', 'в пятницу', 'в субботу', 'в воскресенье'];
-const DAYS_EVERY = ['каждый понедельник', 'каждый вторник', 'каждую среду', 'каждый четверг', 'каждую пятницу', 'каждую субботу', 'каждое воскресенье'];
-const DAYS_SHORT = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-const MONTHS_GEN = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
-const MONTHS_SHORT = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'нояб', 'дек'];
+// ---------- языки ----------
+// Все надписи интерфейса. Язык выбирается в настройках, по умолчанию английский.
+const STR = {
+  en: {
+    days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+    daysIn: ['on Monday', 'on Tuesday', 'on Wednesday', 'on Thursday', 'on Friday', 'on Saturday', 'on Sunday'],
+    daysEvery: ['every Monday', 'every Tuesday', 'every Wednesday', 'every Thursday', 'every Friday', 'every Saturday', 'every Sunday'],
+    daysShort: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+    monthsShort: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    longDate: (d, m) => `${m} ${d}`,
+    shortDate: (d, m) => `${m} ${d}`,
+    weekRange: (d1, m1, d2, m2) => (m1 === m2 ? `${m1} ${d1} — ${d2}` : `${m1} ${d1} — ${m2} ${d2}`),
+    everyDay: 'every day', weekdays: 'on weekdays', weekends: 'on weekends', everyList: (l) => 'every ' + l,
+    appName: 'Planner',
+    toThisWeek: 'Go to this week', prevWeek: 'Previous week', nextWeek: 'Next week', settings: 'Settings',
+    language: 'Language', move: 'Move', week: 'Week', newTask: 'New task',
+    appearance: 'Appearance', theme: 'Theme', themeSystem: 'Like iPhone', themeLight: 'Light', themeDark: 'Dark',
+    tasks: 'Tasks', doneDown: 'Done to the bottom', doneDownHint: 'A checked task moves to the end of the day, into “Done”',
+    backup: 'Backup', saveBackup: 'Save backup', restore: 'Restore from backup', restoreHint: 'Pick a file you saved earlier',
+    backupNote: 'Your tasks are stored only on this phone. If you delete the app or clear Safari, they will be lost. Save a backup once a week to Files or iCloud Drive.',
+    undo: 'Undo', delete: 'Delete',
+    doneAria: (t) => `Done: ${t}`, editAria: (t) => `Edit: ${t}`,
+    weekCount: (done, total) => `done this week, ${done} of ${total}`, weekEmpty: 'no tasks this week yet',
+    carryText: (n, yesterday) => `${n} ${n === 1 ? 'task' : 'tasks'} from ${yesterday ? 'yesterday' : 'previous days'} not done`,
+    openDay: (day, date) => `Open ${day}, ${date}`, today: 'today', addLink: '+ task',
+    dayCount: (done, total) => `${done} of ${total} done`, dayEmpty: 'No tasks yet',
+    important: 'Important', other: 'Other', done: 'Done', emptyHint: 'Add your first task with the button below.',
+    prevDay: (day, date) => `Previous day, ${day} ${date}`, nextDay: (day, date) => `Next day, ${day} ${date}`,
+    lastBackup: (date) => `Last backup: ${date}`, noBackup: 'No backup yet',
+    editTask: 'Edit task', placeholder: 'What needs to be done?', repeatWeekly: 'Repeat every week',
+    importantHint: 'Shown in bold and first in the day', save: 'Save', add: 'Add', deleteTask: 'Delete task',
+    noDays: 'No days selected', whichDays: 'Which days', day: 'Day', willRepeat: (l) => `Repeats ${l}`, pickDays: 'Pick days', onlyThisDay: 'Only on this day',
+    editTitle: (t) => `Edit “${t}”`, deleteTitle: (t) => `Delete “${t}”`, repeats: (l) => `This task repeats ${l}`,
+    onlyOn: (dayIn, date) => `Only ${dayIn}, ${date}`, otherDaysSame: 'Other days stay as they are', allDays: 'On all days', allDaysHint: 'Changes everywhere it repeats',
+    otherDaysStay: 'Stays on other days', forever: 'Completely', foreverHint: 'Will no longer repeat',
+    deleted: (t) => `“${t}” deleted`, cancel: 'Cancel',
+    carryTitleYesterday: 'Not done yesterday', carryTitle: 'Not done in previous days', carrySub: 'Choose what to move to today. The rest stays on its days.',
+    carryGo: (n) => `Move to today (${n})`, carryKeep: 'Leave as is',
+    backupError: 'Couldn’t save the backup. Please try again.', notBackup: 'This is not a planner backup. Pick a planer-….json file',
+    restoreTitle: 'Restore from backup?', backupFrom: (date) => `Backup from ${date}`, backupPlain: 'Backup',
+    restoreBody: (when, n) => `${when}, ${n} ${n === 1 ? 'task' : 'tasks'}. Everything in the planner now will be replaced with the backup.`, restoreGo: 'Restore',
+  },
+  ru: {
+    days: ['понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота', 'воскресенье'],
+    daysIn: ['в понедельник', 'во вторник', 'в среду', 'в четверг', 'в пятницу', 'в субботу', 'в воскресенье'],
+    daysEvery: ['каждый понедельник', 'каждый вторник', 'каждую среду', 'каждый четверг', 'каждую пятницу', 'каждую субботу', 'каждое воскресенье'],
+    daysShort: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
+    months: ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'],
+    monthsShort: ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'нояб', 'дек'],
+    longDate: (d, m) => `${d} ${m}`,
+    shortDate: (d, m) => `${d} ${m}`,
+    weekRange: (d1, m1, d2, m2) => (m1 === m2 ? `${d1} — ${d2} ${m2}` : `${d1} ${m1} — ${d2} ${m2}`),
+    everyDay: 'каждый день', weekdays: 'по будням', weekends: 'по выходным', everyList: (l) => 'каждые ' + l.toLowerCase(),
+    appName: 'Планер',
+    toThisWeek: 'К текущей неделе', prevWeek: 'Прошлая неделя', nextWeek: 'Следующая неделя', settings: 'Настройки',
+    language: 'Язык', move: 'Перенести', week: 'Неделя', newTask: 'Новое дело',
+    appearance: 'Оформление', theme: 'Тема', themeSystem: 'Как на iPhone', themeLight: 'Светлая', themeDark: 'Тёмная',
+    tasks: 'Дела', doneDown: 'Сделанные — вниз', doneDownHint: 'Отмеченное дело уходит в конец дня, в раздел «Сделано»',
+    backup: 'Резервная копия', saveBackup: 'Сохранить копию', restore: 'Восстановить из копии', restoreHint: 'Выбери файл, сохранённый раньше',
+    backupNote: 'Записи хранятся только на этом телефоне. Если удалить приложение или очистить Safari, они пропадут. Сохраняй копию раз в неделю в «Файлы» или iCloud Drive.',
+    undo: 'Вернуть', delete: 'Удалить',
+    doneAria: (t) => `Сделано: ${t}`, editAria: (t) => `Изменить: ${t}`,
+    weekCount: (done, total) => `сделано за неделю, ${done} из ${total}`, weekEmpty: 'на этой неделе пока нет дел',
+    carryText: (n, yesterday) => `${n} ${pluralRu(n, 'дело', 'дела', 'дел')} ${yesterday ? 'со вчера' : 'с прошлых дней'} не ${n === 1 ? 'сделано' : 'сделаны'}`,
+    openDay: (day, date) => `Открыть ${day}, ${date}`, today: 'сегодня', addLink: '+ дело',
+    dayCount: (done, total) => `Сделано ${done} из ${total}`, dayEmpty: 'Дел пока нет',
+    important: 'Важное', other: 'Остальное', done: 'Сделано', emptyHint: 'Добавь первое дело кнопкой внизу.',
+    prevDay: (day, date) => `Предыдущий день, ${day} ${date}`, nextDay: (day, date) => `Следующий день, ${day} ${date}`,
+    lastBackup: (date) => `Последняя копия: ${date}`, noBackup: 'Копию ещё не сохраняли',
+    editTask: 'Изменить дело', placeholder: 'Что нужно сделать?', repeatWeekly: 'Повторять каждую неделю',
+    importantHint: 'Выделяется жирным и стоит первым в дне', save: 'Сохранить', add: 'Добавить', deleteTask: 'Удалить дело',
+    noDays: 'Дни не выбраны', whichDays: 'По каким дням', day: 'День', willRepeat: (l) => `Будет ${l}`, pickDays: 'Выбери дни', onlyThisDay: 'Только в этот день',
+    editTitle: (t) => `Изменить «${t}»`, deleteTitle: (t) => `Удалить «${t}»`, repeats: (l) => `Это дело повторяется: ${l}`,
+    onlyOn: (dayIn, date) => `Только ${dayIn}, ${date}`, otherDaysSame: 'В остальные дни останется как было', allDays: 'Во всех днях', allDaysHint: 'Изменится везде, где повторяется',
+    otherDaysStay: 'В остальные дни останется', forever: 'Совсем', foreverHint: 'Больше не будет повторяться',
+    deleted: (t) => `«${t}» удалено`, cancel: 'Отмена',
+    carryTitleYesterday: 'Не сделано со вчера', carryTitle: 'Не сделано за прошлые дни', carrySub: 'Выбери, что перенести на сегодня. Остальное останется на своих днях.',
+    carryGo: (n) => `Перенести на сегодня (${n})`, carryKeep: 'Оставить как есть',
+    backupError: 'Не получилось сохранить копию. Попробуй ещё раз.', notBackup: 'Это не копия планера. Выбери файл planer-….json',
+    restoreTitle: 'Восстановить из копии?', backupFrom: (date) => `Копия от ${date}`, backupPlain: 'Копия',
+    restoreBody: (when, n) => `${when}, в ней ${n} ${pluralRu(n, 'дело', 'дела', 'дел')}. Всё, что сейчас в планере, заменится на записи из копии.`, restoreGo: 'Восстановить',
+  },
+};
+const L = () => STR[state.settings.lang] ?? STR.en;
+
+function pluralRu(n, one, few, many) {
+  const m10 = n % 10, m100 = n % 100;
+  if (m10 === 1 && m100 !== 11) return one;
+  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
+  return many;
+}
 
 const CHECK_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 
@@ -26,29 +112,22 @@ const weekday = (d) => (d.getDay() + 6) % 7;
 const mondayOf = (d) => addDays(d, -weekday(d));
 const today = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; };
 const cap = (s) => s[0].toUpperCase() + s.slice(1);
-const longDate = (d) => `${d.getDate()} ${MONTHS_GEN[d.getMonth()]}`;
+const longDate = (d) => L().longDate(d.getDate(), L().months[d.getMonth()]);
+const shortDate = (d) => L().shortDate(d.getDate(), L().monthsShort[d.getMonth()]);
+const dayName = (d) => L().days[weekday(d)];
 
 function weekRange(mon) {
-  const sun = addDays(mon, 6);
-  return mon.getMonth() === sun.getMonth()
-    ? `${mon.getDate()} — ${sun.getDate()} ${MONTHS_SHORT[sun.getMonth()]}`
-    : `${mon.getDate()} ${MONTHS_SHORT[mon.getMonth()]} — ${sun.getDate()} ${MONTHS_SHORT[sun.getMonth()]}`;
-}
-
-function plural(n, one, few, many) {
-  const m10 = n % 10, m100 = n % 100;
-  if (m10 === 1 && m100 !== 11) return one;
-  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
-  return many;
+  const sun = addDays(mon, 6), ms = L().monthsShort;
+  return L().weekRange(mon.getDate(), ms[mon.getMonth()], sun.getDate(), ms[sun.getMonth()]);
 }
 
 function repeatLabel(weekdays) {
   const w = [...weekdays].sort();
-  if (w.length === 7) return 'каждый день';
-  if (w.join() === '0,1,2,3,4') return 'по будням';
-  if (w.join() === '5,6') return 'по выходным';
-  if (w.length === 1) return DAYS_EVERY[w[0]];
-  return 'каждые ' + w.map((i) => DAYS_SHORT[i].toLowerCase()).join(', ');
+  if (w.length === 7) return L().everyDay;
+  if (w.join() === '0,1,2,3,4') return L().weekdays;
+  if (w.join() === '5,6') return L().weekends;
+  if (w.length === 1) return L().daysEvery[w[0]];
+  return L().everyList(w.map((i) => L().daysShort[i]).join(', '));
 }
 
 const esc = (s) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -56,7 +135,7 @@ const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 
 
 // ---------- состояние ----------
 
-const emptyState = () => ({ tasks: [], series: [], carryDismissed: [], settings: { theme: 'system', lastBackup: null, doneDown: true } });
+const emptyState = () => ({ tasks: [], series: [], carryDismissed: [], settings: { theme: 'system', lastBackup: null, doneDown: true, lang: 'en' } });
 
 function load() {
   try {
@@ -146,10 +225,10 @@ function taskRow(item, { showRepeat = true } = {}) {
   row.className = 'task-swipe';
   row.dataset.key = rowKey(item);
   row.innerHTML = `
-    <button class="swipe-delete" tabindex="-1">Удалить</button>
+    <button class="swipe-delete" tabindex="-1">${L().delete}</button>
     <div class="task${item.done ? ' is-done' : ''}${item.important ? ' is-important' : ''}">
-      <button class="check" role="checkbox" aria-checked="${item.done}" aria-label="Сделано: ${esc(item.text)}">${CHECK_SVG}</button>
-      <button class="task-body" aria-label="Изменить: ${esc(item.text)}">
+      <button class="check" role="checkbox" aria-checked="${item.done}" aria-label="${L().doneAria(esc(item.text))}">${CHECK_SVG}</button>
+      <button class="task-body" aria-label="${L().editAria(esc(item.text))}">
         <span class="task-text">${esc(item.text)}</span>
         ${item.kind === 'series' && showRepeat ? `<span class="task-sub">${repeatLabel(item.weekdays)}</span>` : ''}
       </button>
@@ -181,7 +260,7 @@ function renderWeek() {
   }
   const pct = total ? Math.round(done / total * 100) : 0;
   $('week-pct').textContent = `${pct}%`;
-  $('week-count').textContent = total ? `сделано за неделю, ${done} из ${total}` : 'на этой неделе пока нет дел';
+  $('week-count').textContent = total ? L().weekCount(done, total) : L().weekEmpty;
   $('week-bar').style.width = `${pct}%`;
 
   // баннер переноса
@@ -189,8 +268,7 @@ function renderWeek() {
   $('carry-banner').hidden = !carry.length;
   if (carry.length) {
     const yesterday = keyOf(addDays(t, -1));
-    const when = carry.every((x) => x.date === yesterday) ? 'со вчера' : 'с прошлых дней';
-    $('carry-text').textContent = `${carry.length} ${plural(carry.length, 'дело', 'дела', 'дел')} ${when} не ${carry.length === 1 ? 'сделано' : 'сделаны'}`;
+    $('carry-text').textContent = L().carryText(carry.length, carry.every((x) => x.date === yesterday));
   }
 
   // сетка: пн-ср слева, чт-пт справа, выходные вместе
@@ -203,12 +281,12 @@ function renderWeek() {
     cell.className = 'day-cell' + (key === tKey ? ' is-today' : '');
     if (i < 5) cell.style.gridArea = `d${i}`;
     cell.innerHTML = `
-      <button class="day-head" aria-label="Открыть ${DAYS[i]}, ${longDate(d)}">
-        <span class="dname">${DAYS_SHORT[i]}</span><span>${d.getDate()}</span>
-        ${key === tKey ? '<span class="pill">сегодня</span>' : ''}
+      <button class="day-head" aria-label="${L().openDay(L().days[i], longDate(d))}">
+        <span class="dname">${L().daysShort[i]}</span><span>${d.getDate()}</span>
+        ${key === tKey ? `<span class="pill">${L().today}</span>` : ''}
       </button>
       <div class="task-list"></div>
-      <button class="add-link">+ дело</button>`;
+      <button class="add-link">${L().addLink}</button>`;
     cell.querySelector('.day-head').onclick = () => go('day', d);
     // тап по пустому месту ячейки — тоже открыть день
     cell.onclick = (e) => { if (!e.target.closest('button, .task-swipe')) go('day', d); };
@@ -222,8 +300,8 @@ function renderWeek() {
 function renderDay() {
   const d = dayDate, key = keyOf(d), items = itemsOn(key);
   const done = items.filter((x) => x.done).length;
-  $('day-title').textContent = `${cap(DAYS[weekday(d)])}, ${longDate(d)}`;
-  $('day-count').textContent = items.length ? `Сделано ${done} из ${items.length}` : 'Дел пока нет';
+  $('day-title').textContent = `${cap(dayName(d))}, ${longDate(d)}`;
+  $('day-count').textContent = items.length ? L().dayCount(done, items.length) : L().dayEmpty;
   $('day-bar').style.width = items.length ? `${Math.round(done / items.length * 100)}%` : '0';
 
   const box = $('day-sections');
@@ -232,9 +310,9 @@ function renderDay() {
   const doneDown = state.settings.doneDown;
   const open = doneDown ? items.filter((x) => !x.done) : items;
   const groups = [
-    ['Важное', open.filter((x) => x.important)],
-    ['Остальное', open.filter((x) => !x.important)],
-    ['Сделано', doneDown ? items.filter((x) => x.done) : []],
+    ['important', open.filter((x) => x.important)],
+    ['other', open.filter((x) => !x.important)],
+    ['done', doneDown ? items.filter((x) => x.done) : []],
   ].filter(([, list]) => list.length);
   const section = (label, list) => {
     const s = document.createElement('section');
@@ -243,21 +321,22 @@ function renderDay() {
     s.querySelector('.task-list').append(...list.map((x) => taskRow(x)));
     box.append(s);
   };
-  if (!items.length) box.innerHTML = '<p class="empty">Добавь первое дело кнопкой внизу.</p>';
+  if (!items.length) box.innerHTML = `<p class="empty">${L().emptyHint}</p>`;
   // если раздел один и это обычные дела — без заголовка
-  else if (groups.length === 1 && groups[0][0] === 'Остальное') section('', items);
-  else for (const [label, list] of groups) section(label, list);
+  else if (groups.length === 1 && groups[0][0] === 'other') section('', items);
+  else for (const [label, list] of groups) section(L()[label], list);
 
   const prev = addDays(d, -1), next = addDays(d, 1);
-  $('prev-day').setAttribute('aria-label', `Предыдущий день, ${DAYS[weekday(prev)]} ${longDate(prev)}`);
-  $('next-day').setAttribute('aria-label', `Следующий день, ${DAYS[weekday(next)]} ${longDate(next)}`);
+  $('prev-day').setAttribute('aria-label', L().prevDay(dayName(prev), longDate(prev)));
+  $('next-day').setAttribute('aria-label', L().nextDay(dayName(next), longDate(next)));
 }
 
 function renderSettings() {
   for (const b of $('theme-switch').children) b.setAttribute('aria-pressed', b.dataset.themeValue === state.settings.theme);
+  for (const b of $('lang-switch').children) b.setAttribute('aria-pressed', b.dataset.langValue === state.settings.lang);
   $('done-down').checked = state.settings.doneDown;
   const last = state.settings.lastBackup;
-  $('backup-last').textContent = last ? `Последняя копия: ${longDate(fromKey(last))}` : 'Копию ещё не сохраняли';
+  $('backup-last').textContent = last ? L().lastBackup(longDate(fromKey(last))) : L().noBackup;
 }
 
 // ---------- навигация ----------
@@ -385,26 +464,26 @@ function openTaskSheet({ date, item }) {
 
   openSheet(`
     <div>
-      <h2 class="sheet-title">${editing ? 'Изменить дело' : 'Новое дело'}</h2>
+      <h2 class="sheet-title">${editing ? L().editTask : L().newTask}</h2>
       <p class="sheet-date" id="f-subtitle"></p>
     </div>
-    <input class="field" id="f-text" placeholder="Что нужно сделать?" maxlength="200" enterkeyhint="done" autocomplete="off">
+    <input class="field" id="f-text" placeholder="${L().placeholder}" maxlength="200" enterkeyhint="done" autocomplete="off">
     <div id="f-days-wrap">
       <div class="label" id="f-days-label"></div>
       <div class="chips" id="f-days">
-        ${DAYS_SHORT.map((n, i) => `<button class="chip" data-i="${i}" aria-pressed="${selected.has(i)}">${n}<small>${addDays(mon, i).getDate()}</small></button>`).join('')}
+        ${L().daysShort.map((n, i) => `<button class="chip" data-i="${i}" aria-pressed="${selected.has(i)}">${n}<small>${addDays(mon, i).getDate()}</small></button>`).join('')}
       </div>
     </div>
     <label class="switch-row">
-      <span class="switch-text"><span class="switch-title">Повторять каждую неделю</span><span class="switch-hint" id="f-repeat-hint"></span></span>
+      <span class="switch-text"><span class="switch-title">${L().repeatWeekly}</span><span class="switch-hint" id="f-repeat-hint"></span></span>
       <input type="checkbox" class="switch" id="f-repeat">
     </label>
     <label class="switch-row">
-      <span class="switch-text"><span class="switch-title">Важное</span><span class="switch-hint">Выделяется жирным и стоит первым в дне</span></span>
+      <span class="switch-text"><span class="switch-title">${L().important}</span><span class="switch-hint">${L().importantHint}</span></span>
       <input type="checkbox" class="switch" id="f-important">
     </label>
-    <button class="btn btn-primary" id="f-save">${editing ? 'Сохранить' : 'Добавить'}</button>
-    ${editing ? '<button class="btn btn-secondary" id="f-delete">Удалить дело</button>' : ''}
+    <button class="btn btn-primary" id="f-save">${editing ? L().save : L().add}</button>
+    ${editing ? `<button class="btn btn-secondary" id="f-delete">${L().deleteTask}</button>` : ''}
   `, (sheet) => {
     const text = sheet.querySelector('#f-text');
     const rep = sheet.querySelector('#f-repeat');
@@ -421,14 +500,14 @@ function openTaskSheet({ date, item }) {
       // подзаголовок следует за выбранными днями
       const first = addDays(mon, [...selected][0] ?? weekday(base));
       sheet.querySelector('#f-subtitle').textContent = rep.checked
-        ? (selected.size ? cap(repeatLabel([...selected])) : 'Дни не выбраны')
-        : `${cap(DAYS[weekday(first)])}, ${longDate(first)}`;
+        ? (selected.size ? cap(repeatLabel([...selected])) : L().noDays)
+        : `${cap(dayName(first))}, ${longDate(first)}`;
       sheet.querySelector('#f-days-wrap').hidden = !rep.checked && !editing;
-      sheet.querySelector('#f-days-label').textContent = rep.checked ? 'По каким дням' : 'День';
+      sheet.querySelector('#f-days-label').textContent = rep.checked ? L().whichDays : L().day;
       for (const c of chips) c.setAttribute('aria-pressed', selected.has(Number(c.dataset.i)));
       sheet.querySelector('#f-repeat-hint').textContent = rep.checked
-        ? (selected.size ? `Будет ${repeatLabel([...selected])}` : 'Выбери дни')
-        : 'Только в этот день';
+        ? (selected.size ? L().willRepeat(repeatLabel([...selected])) : L().pickDays)
+        : L().onlyThisDay;
       saveBtn.disabled = !text.value.trim() || !selected.size;
     };
     sheet.querySelector('#f-days').onclick = (e) => {
@@ -507,34 +586,34 @@ function saveEdit(item, data) {
 
   const d = fromKey(item.date);
   openChoice({
-    title: `Изменить «${s.text}»`,
-    sub: `Это дело повторяется: ${repeatLabel(s.weekdays)}`,
+    title: L().editTitle(s.text),
+    sub: L().repeats(repeatLabel(s.weekdays)),
     options: [
-      { title: `Только ${DAYS_IN[weekday(d)]}, ${longDate(d)}`, hint: 'В остальные дни останется как было', run: () => {
+      { title: L().onlyOn(L().daysIn[weekday(d)], longDate(d)), hint: L().otherDaysSame, run: () => {
         s.skips.push(item.date);
         state.tasks.push({ id: uid(), text, important, date: item.date, done: item.done, created: s.created });
       } },
-      { title: 'Во всех днях', hint: 'Изменится везде, где повторяется', run: () => Object.assign(s, { text, important }) },
+      { title: L().allDays, hint: L().allDaysHint, run: () => Object.assign(s, { text, important }) },
     ],
   });
 }
 
 function requestDelete(item) {
   const snapshot = JSON.stringify(state);
-  const finish = () => { closeSheet(); commit(); showToast(`«${item.text}» удалено`, snapshot); };
+  const finish = () => { closeSheet(); commit(); showToast(L().deleted(item.text), snapshot); };
   if (item.kind === 'one') {
     state.tasks = state.tasks.filter((t) => t.id !== item.id);
     return finish();
   }
   const s = findSeries(item.id), d = fromKey(item.date);
   openChoice({
-    title: `Удалить «${s.text}»`,
-    sub: `Это дело повторяется: ${repeatLabel(s.weekdays)}`,
+    title: L().deleteTitle(s.text),
+    sub: L().repeats(repeatLabel(s.weekdays)),
     options: [
-      { title: `Только ${DAYS_IN[weekday(d)]}, ${longDate(d)}`, hint: 'В остальные дни останется', run: () => s.skips.push(item.date) },
-      { title: 'Совсем', hint: 'Больше не будет повторяться', run: () => { s.end = item.date; } },
+      { title: L().onlyOn(L().daysIn[weekday(d)], longDate(d)), hint: L().otherDaysStay, run: () => s.skips.push(item.date) },
+      { title: L().forever, hint: L().foreverHint, run: () => { s.end = item.date; } },
     ],
-    after: () => showToast(`«${item.text}» удалено`, snapshot),
+    after: () => showToast(L().deleted(item.text), snapshot),
   });
 }
 
@@ -543,7 +622,7 @@ function openChoice({ title, sub, options, after }) {
     <h2 class="sheet-title">${esc(title)}</h2>
     <p class="sheet-sub">${esc(sub)}</p>
     ${options.map((o, i) => `<button class="option" data-i="${i}"><span class="option-title">${esc(o.title)}</span><span class="option-hint">${esc(o.hint)}</span></button>`).join('')}
-    <button class="btn btn-secondary" id="c-cancel">Отмена</button>
+    <button class="btn btn-secondary" id="c-cancel">${L().cancel}</button>
   `, (sheet) => {
     sheet.querySelectorAll('.option').forEach((b) => {
       b.onclick = () => { options[b.dataset.i].run(); closeSheet(); commit(); after?.(); };
@@ -557,22 +636,22 @@ function openCarrySheet() {
   const yesterday = keyOf(addDays(today(), -1));
   const fromYesterday = list.every((x) => x.date === yesterday);
   openSheet(`
-    <h2 class="sheet-title">${fromYesterday ? 'Не сделано со вчера' : 'Не сделано за прошлые дни'}</h2>
-    <p class="sheet-sub">Выбери, что перенести на сегодня. Остальное останется на своих днях.</p>
+    <h2 class="sheet-title">${fromYesterday ? L().carryTitleYesterday : L().carryTitle}</h2>
+    <p class="sheet-sub">${L().carrySub}</p>
     <div class="pick-list">
       ${list.map((t) => {
         const d = fromKey(t.date);
-        return `<label class="pick-row"><input type="checkbox" checked data-id="${t.id}"><span>${esc(t.text)}</span><small>${DAYS_SHORT[weekday(d)].toLowerCase()}, ${d.getDate()} ${MONTHS_SHORT[d.getMonth()]}</small></label>`;
+        return `<label class="pick-row"><input type="checkbox" checked data-id="${t.id}"><span>${esc(t.text)}</span><small>${L().daysShort[weekday(d)]}, ${shortDate(d)}</small></label>`;
       }).join('')}
     </div>
     <button class="btn btn-primary" id="carry-go"></button>
-    <button class="btn btn-secondary" id="carry-keep">Оставить как есть</button>
+    <button class="btn btn-secondary" id="carry-keep">${L().carryKeep}</button>
   `, (sheet) => {
     const boxes = [...sheet.querySelectorAll('input[type=checkbox]')];
     const btn = sheet.querySelector('#carry-go');
     const refresh = () => {
       const n = boxes.filter((b) => b.checked).length;
-      btn.textContent = `Перенести на сегодня (${n})`;
+      btn.textContent = L().carryGo(n);
       btn.disabled = !n;
     };
     boxes.forEach((b) => (b.onchange = refresh));
@@ -627,6 +706,24 @@ matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme
 
 $('done-down').onchange = (e) => { state.settings.doneDown = e.target.checked; commit(); };
 
+// ---------- язык ----------
+
+// постоянные надписи в разметке помечены data-i18n (текст) и data-i18n-aria (aria-label)
+function applyLang() {
+  const s = L();
+  document.documentElement.lang = state.settings.lang === 'ru' ? 'ru' : 'en';
+  document.title = s.appName;
+  document.querySelector('meta[name="apple-mobile-web-app-title"]').content = s.appName;
+  for (const el of document.querySelectorAll('[data-i18n]')) el.textContent = s[el.dataset.i18n];
+  for (const el of document.querySelectorAll('[data-i18n-aria]')) el.setAttribute('aria-label', s[el.dataset.i18nAria]);
+}
+$('lang-switch').onclick = (e) => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  state.settings.lang = b.dataset.langValue;
+  applyLang(); commit();
+};
+
 // ---------- резервная копия ----------
 
 $('backup-save').onclick = async () => {
@@ -645,7 +742,7 @@ $('backup-save').onclick = async () => {
     state.settings.lastBackup = keyOf(t);
     commit();
   } catch (err) {
-    if (err.name !== 'AbortError') alert('Не получилось сохранить копию. Попробуй ещё раз.');
+    if (err.name !== 'AbortError') alert(L().backupError);
   }
 };
 
@@ -659,16 +756,16 @@ $('restore-input').onchange = async (e) => {
     data = JSON.parse(await file.text());
     if (data.app !== 'planer' || !Array.isArray(data.tasks) || !Array.isArray(data.series)) throw new Error('format');
   } catch {
-    alert('Это не копия планера. Выбери файл planer-….json');
+    alert(L().notBackup);
     return;
   }
   const n = data.tasks.length + data.series.length;
-  const when = data.savedAt ? `Копия от ${longDate(fromKey(data.savedAt))}` : 'Копия';
+  const when = data.savedAt ? L().backupFrom(longDate(fromKey(data.savedAt))) : L().backupPlain;
   openSheet(`
-    <h2 class="sheet-title">Восстановить из копии?</h2>
-    <p class="sheet-sub">${when}, в ней ${n} ${plural(n, 'дело', 'дела', 'дел')}. Всё, что сейчас в планере, заменится на записи из копии.</p>
-    <button class="btn btn-primary" id="r-go">Восстановить</button>
-    <button class="btn btn-secondary" id="r-cancel">Отмена</button>
+    <h2 class="sheet-title">${L().restoreTitle}</h2>
+    <p class="sheet-sub">${L().restoreBody(when, n)}</p>
+    <button class="btn btn-primary" id="r-go">${L().restoreGo}</button>
+    <button class="btn btn-secondary" id="r-cancel">${L().cancel}</button>
   `, (sheet) => {
     sheet.querySelector('#r-go').onclick = () => {
       state = { ...state, tasks: data.tasks, series: data.series, carryDismissed: [] };
@@ -685,6 +782,7 @@ $('restore-input').onchange = async (e) => {
 document.addEventListener('visibilitychange', () => { if (!document.hidden) render(); });
 
 applyTheme();
+applyLang();
 render();
 
 // офлайн-режим и установка на телефон (на file:// не работает — нужен сервер)
