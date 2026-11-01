@@ -1,15 +1,15 @@
 // Сервис-воркер: сохраняет файлы приложения, чтобы планер открывался без интернета.
 // Сначала берёт свежую версию из сети, без интернета — из кэша.
-const CACHE = 'planner-v13';
+const CACHE = 'planner-v14';
 const SHELL = [
   './',
   'index.html',
   'style.css',
   'script.js',
   'manifest.json',
-  'icons/icon-180.png',
-  'icons/icon-192.png',
-  'icons/icon-512.png',
+  'icons/check-180.png',
+  'icons/check-192.png',
+  'icons/check-512.png',
 ];
 
 self.addEventListener('install', (e) => {
