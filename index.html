@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Планер</title>
+  <meta name="theme-color" content="#F4F4F5" id="theme-color">
+
+  <!-- Чтобы на iPhone открывалось как приложение, без адресной строки -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Планер">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Неделя (главный экран) -->
+  <main class="view" id="view-week">
+    <header class="head">
+      <button class="week-title" id="week-title" aria-label="К текущей неделе"></button>
+      <div class="head-actions">
+        <button class="icon-btn" id="prev-week" aria-label="Прошлая неделя">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <button class="icon-btn" id="next-week" aria-label="Следующая неделя">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+        <button class="icon-btn" id="open-settings" aria-label="Настройки">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="progress">
+      <div class="progress-label"><strong id="week-pct"></strong><span id="week-count"></span></div>
+      <div class="bar"><div class="bar-fill" id="week-bar"></div></div>
+    </div>
+
+    <div class="banner" id="carry-banner" hidden>
+      <span id="carry-text"></span>
+      <button class="btn-small" id="carry-open">Перенести</button>
+    </div>
+
+    <div class="week-grid" id="week-grid"></div>
+  </main>
+
+  <!-- Один день -->
+  <main class="view" id="view-day" hidden>
+    <header class="day-top">
+      <button class="back" data-go="week">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Неделя
+      </button>
+      <div class="head-actions">
+        <button class="icon-btn" id="prev-day">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <button class="icon-btn" id="next-day">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+      </div>
+    </header>
+    <h1 class="page-title" id="day-title"></h1>
+    <p class="page-sub" id="day-count"></p>
+    <div class="bar"><div class="bar-fill" id="day-bar"></div></div>
+    <div id="day-sections"></div>
+    <div class="day-bottom">
+      <button class="btn btn-primary" id="day-add">Новое дело</button>
+    </div>
+  </main>
+
+  <!-- Настройки -->
+  <main class="view" id="view-settings" hidden>
+    <button class="back" data-go="week">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Неделя
+    </button>
+    <h1 class="page-title">Настройки</h1>
+
+    <section class="settings-group">
+      <h2 class="group-label">Оформление</h2>
+      <div class="segmented" id="theme-switch" role="group" aria-label="Тема">
+        <button data-theme-value="system">Как на iPhone</button>
+        <button data-theme-value="light">Светлая</button>
+        <button data-theme-value="dark">Тёмная</button>
+      </div>
+    </section>
+
+    <section class="settings-group">
+      <h2 class="group-label">Дела</h2>
+      <div class="list">
+        <label class="switch-row">
+          <span class="switch-text"><span class="switch-title">Сделанные — вниз</span><span class="switch-hint">Отмеченное дело уходит в конец дня, в раздел «Сделано»</span></span>
+          <input type="checkbox" class="switch" id="done-down">
+        </label>
+      </div>
+    </section>
+
+    <section class="settings-group">
+      <h2 class="group-label">Резервная копия</h2>
+      <div class="list">
+        <button class="list-row" id="backup-save">
+          <span class="list-text"><span class="list-title">Сохранить копию</span><span class="list-hint" id="backup-last"></span></span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+        <button class="list-row" id="backup-restore">
+          <span class="list-text"><span class="list-title">Восстановить из копии</span><span class="list-hint">Выбери файл, сохранённый раньше</span></span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+      </div>
+      <p class="note">Записи хранятся только на этом телефоне. Если удалить приложение или очистить Safari, они пропадут. Сохраняй копию раз в неделю в «Файлы» или iCloud Drive.</p>
+    </section>
+  </main>
+
+  <!-- Шторки -->
+  <div class="sheet-layer" id="sheet-layer" hidden>
+    <div class="backdrop" id="backdrop"></div>
+    <div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
+  </div>
+
+  <div class="toast" id="toast" role="status" hidden>
+    <span id="toast-text"></span>
+    <button id="toast-undo">Вернуть</button>
+  </div>
+
+  <input type="file" id="restore-input" accept="application/json,.json" hidden>
+
+  <script src="script.js"></script>
+</body>
+</html>
